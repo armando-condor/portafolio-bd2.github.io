@@ -657,8 +657,10 @@ function openViewer(url, nombre){
   const officeTypes = ['doc','docx','ppt','pptx','xls','xlsx'];
   const textTypes = ['txt','sql','csv','json'];
 
-  if(pdfType.includes(e) || imgTypes.includes(e)){
+ if(imgTypes.includes(e)){
     body.innerHTML=`<iframe id="viewerFrame" src="${url}" sandbox="allow-same-origin allow-scripts"></iframe>`;
+} else if(pdfType.includes(e)){
+    body.innerHTML=`<iframe id="viewerFrame" src="https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true"></iframe>`;
   } else if(officeTypes.includes(e)){
     const gUrl=`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
     body.innerHTML=`<iframe id="viewerFrame" src="${gUrl}"></iframe>`;
