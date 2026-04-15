@@ -660,7 +660,9 @@ function openViewer(url, nombre){
  if(imgTypes.includes(e)){
     body.innerHTML=`<iframe id="viewerFrame" src="${url}" sandbox="allow-same-origin allow-scripts"></iframe>`;
 } else if(pdfType.includes(e)){
-    body.innerHTML=`<iframe id="viewerFrame" src="https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true"></iframe>`;
+    window.open(url, '_blank');
+    closeViewer();
+    return;
   } else if(officeTypes.includes(e)){
     const gUrl=`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
     body.innerHTML=`<iframe id="viewerFrame" src="${gUrl}"></iframe>`;
