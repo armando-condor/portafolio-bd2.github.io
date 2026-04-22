@@ -182,6 +182,25 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 .bfi.ed:hover{border-color:var(--sky);color:var(--sky);}
 .bfi.dl:hover{border-color:var(--rose);color:var(--rose);}
 .empty-bl{text-align:center;padding:46px;color:var(--muted);font-size:.76rem;}
+  /* ══ LINK ITEMS ══ */
+.link-item{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--card);padding:11px 13px;margin-bottom:6px;transition:.2s;flex-wrap:wrap;}
+.link-item:hover{border-color:var(--border2);background:var(--card2);}
+.link-url{font-size:.76rem;color:var(--sky);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.link-label{font-size:.8rem;color:var(--text);}
+.link-meta{font-size:.66rem;color:var(--muted);margin-top:3px;}
+.btn-add-link{display:flex;align-items:center;gap:8px;background:transparent;color:var(--sky);padding:9px 18px;font-family:var(--font-body);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;border:1px solid var(--sky);cursor:pointer;margin-bottom:18px;transition:.2s;}
+.btn-add-link:hover{background:var(--sky);color:var(--bg);}
+/* modal agregar enlace */
+#linkModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:870;align-items:center;justify-content:center;padding:16px;}
+#linkModal.open{display:flex;}
+.lk-bx{background:var(--card);border:1px solid var(--border2);border-top:3px solid var(--sky);width:360px;max-width:100%;padding:26px;}
+.lk-bx h3{font-family:var(--font-head);color:var(--text);margin-bottom:16px;font-size:.9rem;}
+.lk-bx label{display:block;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;}
+.lk-bx input{width:100%;padding:9px 11px;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:var(--font-body);font-size:.8rem;outline:none;margin-bottom:12px;}
+.lk-bx input:focus{border-color:var(--sky);}
+.lk-acts{display:flex;gap:7px;justify-content:flex-end;margin-top:4px;}
+.blk-c{padding:7px 14px;border:1px solid var(--border2);background:transparent;color:var(--muted2);cursor:pointer;font-family:var(--font-body);font-size:.7rem;}
+.blk-s{padding:7px 14px;border:none;background:var(--sky);color:var(--bg);cursor:pointer;font-family:var(--font-body);font-size:.7rem;font-weight:700;}
 .loading-bl{text-align:center;padding:46px;color:var(--amber);font-size:.76rem;}
 
 /* ══ OBSERVER MODAL ══ */
@@ -420,6 +439,7 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
     <div class="upload-drop" id="uploadZone"
       ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
       onclick="document.getElementById('fileInput').click()">
+      <button class="btn-add-link" onclick="openLinkModal()">🔗 Agregar Enlace</button>
       <div class="up-ico">📤</div>
       <h3>Arrastra aquí o <b onclick="event.stopPropagation();document.getElementById('fileInput').click()">selecciona archivos</b></h3>
       <p>PDF · Word · PowerPoint · Imágenes · SQL · XLSX</p>
@@ -501,6 +521,20 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 </div>
 
 <div class="toast" id="toast"></div>
+</div>
+  <!-- ══ ADD LINK MODAL ══ -->
+<div id="linkModal">
+  <div class="lk-bx">
+    <h3>🔗 Agregar Enlace</h3>
+    <label>Etiqueta (nombre visible)</label>
+    <input type="text" id="lkLabel" placeholder="Ej: Práctica Semana 3">
+    <label>URL del enlace</label>
+    <input type="text" id="lkUrl" placeholder="https://...">
+    <div class="lk-acts">
+      <button class="blk-c" onclick="closeLinkModal()">Cancelar</button>
+      <button class="blk-s" onclick="saveLink()">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -642,7 +676,33 @@ async function openObsModal(key){
         </div>
       </div>
       <button class="btn-ver" onclick="openViewer('${f.url}','${f.nombre.replace(/'/g,"\\'")}')">👁 Ver</button>
-    </div>`).join('');
+    </div>`)
+  // Al final de openObsModal, reemplaza el bloque de renderizado:
+const [files, links] = await Promise.all([loadFiles(key), loadLinks(key)]);
+if(!files.length && !links.length){ list.innerHTML='<div class="empty-bl">// No hay archivos subidos aún</div>'; return; }
+let html = files.map(f=>`
+  <div class="obs-fi">
+    <div class="obs-fi-left">
+      <span style="font-size:18px;flex-shrink:0">${EICO[ext(f.nombre)]||'📁'}</span>
+      <div style="min-width:0">
+        <div class="obs-fi-name">${f.nombre}</div>
+        <div class="obs-fi-meta">${fsz(f.size)} · ${fdt(f.created_at)}</div>
+      </div>
+    </div>
+    <button class="btn-ver" onclick="openViewer('${f.url}','${f.nombre.replace(/'/g,"\\'")}')">👁 Ver</button>
+  </div>`).join('');
+html += links.map(lk=>`
+  <div class="obs-fi">
+    <div class="obs-fi-left">
+      <span style="font-size:18px;flex-shrink:0">🔗</span>
+      <div style="min-width:0">
+        <div class="obs-fi-name">${lk.label}</div>
+        <div class="obs-fi-meta">Enlace · ${fdt(lk.created_at)}</div>
+      </div>
+    </div>
+    <a class="btn-ver" href="${lk.url}" target="_blank">🔗 Abrir</a>
+  </div>`).join('');
+list.innerHTML = html;.join('');
 }
 function closeObsModal(){ document.getElementById('obsModal').classList.remove('open'); }
 
@@ -732,11 +792,13 @@ async function showPortfolio(){
 async function renderFileList(){
   const list=document.getElementById('fileList');
   list.innerHTML='<div class="loading-bl">// Cargando...</div>';
-  const files=await loadFiles(curKey);
-  document.getElementById('flCnt').textContent=files.length+' archivo'+(files.length!==1?'s':'');
+  const [files, links]=await Promise.all([loadFiles(curKey), loadLinks(curKey)]);
+  document.getElementById('flCnt').textContent=(files.length+links.length)+' elemento'+(files.length+links.length!==1?'s':'');
   weekCounts[curKey]=files.length;
-  if(!files.length){ list.innerHTML='<div class="empty-bl">// No hay archivos subidos</div>'; return; }
-  list.innerHTML=files.map((f,i)=>`
+  let html='';
+  if(!files.length && !links.length){ list.innerHTML='<div class="empty-bl">// No hay archivos ni enlaces subidos</div>'; return; }
+  // Archivos
+  html+=files.map(f=>`
     <div class="fi">
       <div class="fi-ico">${EICO[ext(f.nombre)]||'📁'}</div>
       <div class="fi-info">
@@ -748,6 +810,21 @@ async function renderFileList(){
         <button class="bfi dl" onclick="delFile('${f.id}','${f.storage_path.replace(/'/g,"\\'")}','${f.nombre.replace(/'/g,"\\'")}')">Eliminar</button>
       </div>
     </div>`).join('');
+  // Enlaces
+  html+=links.map(lk=>`
+    <div class="link-item">
+      <span style="font-size:18px;flex-shrink:0">🔗</span>
+      <div class="fi-info">
+        <div class="link-label">${lk.label}</div>
+        <div class="link-url">${lk.url}</div>
+        <div class="link-meta">${fdt(lk.created_at)}</div>
+      </div>
+      <div class="fi-acts">
+        <button class="bfi ed" onclick="window.open('${lk.url}','_blank')">Abrir</button>
+        <button class="bfi dl" onclick="delLink('${lk.id}','${lk.label.replace(/'/g,"\\'")}')">Eliminar</button>
+      </div>
+    </div>`).join('');
+  list.innerHTML=html;
 }
 
 /* ══ UPLOAD ══ */
@@ -850,7 +927,43 @@ document.addEventListener('keydown',e=>{
     if(document.getElementById('loginModal').classList.contains('open'))closeLogin();
   }
 });
+/* ══ LINKS ══ */
+const TABLE_LINKS = 'enlaces'; // ← nombre de tu tabla en Supabase
 
+function openLinkModal(){ document.getElementById('lkLabel').value=''; document.getElementById('lkUrl').value=''; document.getElementById('linkModal').classList.add('open'); }
+function closeLinkModal(){ document.getElementById('linkModal').classList.remove('open'); }
+
+async function saveLink(){
+  const label = document.getElementById('lkLabel').value.trim();
+  const url   = document.getElementById('lkUrl').value.trim();
+  if(!label || !url){ toast('⚠ Completa etiqueta y URL','err'); return; }
+  if(!url.startsWith('http')){ toast('⚠ La URL debe comenzar con http','err'); return; }
+  try{
+    const {error} = await sb.from(TABLE_LINKS).insert({
+      semana_key: curKey,
+      label,
+      url,
+      created_at: new Date().toISOString()
+    });
+    if(error) throw error;
+    closeLinkModal();
+    toast('✓ Enlace guardado','ok');
+    await renderFileList();
+  }catch(e){ toast('Error al guardar enlace','err'); console.error(e); }
+}
+
+async function delLink(id, label){
+  if(!confirm('¿Eliminar enlace "'+label+'"?')) return;
+  await sb.from(TABLE_LINKS).delete().eq('id',id);
+  toast('// Enlace eliminado','err');
+  await renderFileList();
+}
+
+async function loadLinks(key){
+  const {data,error} = await sb.from(TABLE_LINKS).select('*').eq('semana_key',key).order('created_at',{ascending:false});
+  if(error){ console.error(error); return []; }
+  return data||[];
+}
 /* ══ INIT ══ */
 renderProjects();
 </script>
