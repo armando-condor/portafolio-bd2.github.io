@@ -576,9 +576,9 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ══════════════════════════════════════════ */
 const USERS = { admin:'123', user:'123' };
 const WEEKS = [
-  {key:'U1S1',u:1,w:1,icon:'🔧',title:'Semana 1',desc:'Modelo conceptual inicial del sistema de base de datos.'},
-  {key:'U1S2',u:1,w:2,icon:'📋',title:'Semana 2',desc:'Reporte de normalización de tablas (1FN, 2FN, 3FN).'},
-  {key:'U1S3',u:1,w:3,icon:'🔑',title:'Semana 3',desc:'Definición de llaves primarias y foráneas.'},
+  {key:'U1S1',u:1,w:1,icon:'🔧',title:'Semana 1',desc:'Introduccion a la Arquitectura de Base de Datos'},
+  {key:'U1S2',u:1,w:2,icon:'📋',title:'Semana 2',desc:'Gestores De Base Datos.'},
+  {key:'U1S3',u:1,w:3,icon:'🔑',title:'Semana 3',desc:'Diseño De Arquitectura de Base de Datos.'},
   {key:'U1S4',u:1,w:4,icon:'🔗',title:'Semana 4',desc:'Consultas con INNER JOIN múltiples.'},
   {key:'U2S1',u:2,w:5,icon:'📊',title:'Semana 5',desc:'Aún no hay archivos subidos.'},
   {key:'U2S2',u:2,w:6,icon:'🔍',title:'Semana 6',desc:'Aún no hay archivos subidos.'},
@@ -754,7 +754,7 @@ function closeViewer(){
 
 /* ══ ADMIN NAV ══ */
 function buildAdminNav(){
-  document.getElementById('unitNav').innerHTML=['Unidad 1','Unidad 2','Unidad 3','Unidad 4'].map((u,i)=>{
+  document.getElementById('unitNav').innerHTML=['Unidad 1:Arquitectura De Base De Datos','Unidad 2','Unidad 3','Unidad 4'].map((u,i)=>{
     const ws=WEEKS.filter(w=>w.u===i+1);
     return`<div class="dropdown" id="dd${i}">
       <button class="drop-btn" onclick="toggleDrop(${i})">${u}<span class="drop-arrow">▾</span></button>
