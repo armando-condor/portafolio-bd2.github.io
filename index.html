@@ -658,7 +658,7 @@ async function renderProjects(){
   for(let u=1;u<=4;u++){
     const ws=WEEKS.filter(w=>w.u===u);
     const tot=ws.reduce((s,w)=>s+(weekCounts[w.key]||0),0);
-    h+=`<div class="unit-acc"><div class="unit-hd"><span class="u-num">Unidad ${u}</span><span class="u-tit">BD2 · Semanas ${(u-1)*4+1}–${u*4}</span><span class="u-cnt">${tot} archivos</span></div><div class="weeks-list">`;
+    h+=`<div class="unit-acc"><div class="unit-hd"><span class="u-num">Unidad ${u}</span><span class="u-tit">Arquitectura De Base De Datos·BD2 · Semanas ${(u-1)*4+1}–${u*4}</span><span class="u-cnt">${tot} archivos</span></div><div class="weeks-list">`;
     ws.forEach(wk=>{
       const cnt=weekCounts[wk.key]||0, sp=wk.special?' special':'';
       h+=`<div class="wrow${sp}" onclick="onWeekClick('${wk.key}')">
@@ -754,7 +754,7 @@ function closeViewer(){
 
 /* ══ ADMIN NAV ══ */
 function buildAdminNav(){
-  document.getElementById('unitNav').innerHTML=['Unidad 1:Arquitectura De Base De Datos','Unidad 2','Unidad 3','Unidad 4'].map((u,i)=>{
+  document.getElementById('unitNav').innerHTML=['Unidad 1','Unidad 2','Unidad 3','Unidad 4'].map((u,i)=>{
     const ws=WEEKS.filter(w=>w.u===i+1);
     return`<div class="dropdown" id="dd${i}">
       <button class="drop-btn" onclick="toggleDrop(${i})">${u}<span class="drop-arrow">▾</span></button>
